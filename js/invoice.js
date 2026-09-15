@@ -67,6 +67,10 @@ var Invoice = (function () {
 
     var meta = App.h('div', 'd-meta');
     meta.appendChild(App.h('div', 'd-inv', 'INVOICE'));
+    var metaBlock = App.h('div', 'd-metablock');
+    metaBlock.appendChild(metaRow('Invoice No.', inv.number));
+    metaBlock.appendChild(metaRow('Date', Fmt.date(inv.date)));
+    meta.appendChild(metaBlock);
     head.appendChild(meta);
 
     docEl.appendChild(head);
@@ -74,27 +78,15 @@ var Invoice = (function () {
     /* 2 — the rule */
     docEl.appendChild(App.h('div', 'd-rule'));
 
-    /* 3 — bill to on the left, the invoice number and date on the right.
-       No supply details: that is the block this band must never grow back. */
+    /* 3 — bill to. The right half of this band stays empty by design:
+       no supply details, ever. */
     var billto = App.h('div', 'd-billto');
-
-    var left = App.h('div', 'd-bt-l');
-    left.appendChild(App.h('p', 'd-lbl', 'BILL TO'));
-    left.appendChild(App.h('p', 'd-party', party ? party.name : 'Cash Customer'));
+    billto.appendChild(App.h('p', 'd-lbl', 'BILL TO'));
+    billto.appendChild(App.h('p', 'd-party', party ? party.name : 'Cash Customer'));
     if (party) {
       var sub = [party.address, party.phone].filter(Boolean).join('\n');
-      if (sub) { left.appendChild(App.h('p', 'd-partysub', sub)); }
+      if (sub) { billto.appendChild(App.h('p', 'd-partysub', sub)); }
     }
-    billto.appendChild(left);
-
-    var table = document.createElement('table');
-    table.className = 'd-metatable';
-    var tb = document.createElement('tbody');
-    tb.appendChild(metaRow('Invoice No.', inv.number));
-    tb.appendChild(metaRow('Date', Fmt.date(inv.date)));
-    table.appendChild(tb);
-    billto.appendChild(table);
-
     docEl.appendChild(billto);
 
     /* 4 — line items */
@@ -155,14 +147,13 @@ var Invoice = (function () {
     docEl.appendChild(sign);
   }
 
+  /* label and value sit side by side on one right-aligned line, so a short
+     number never leaves a hole between the two */
   function metaRow(label, value) {
-    var tr = document.createElement('tr');
-    var th = document.createElement('th');
-    th.textContent = label;
-    var td = document.createElement('td');
-    td.textContent = value;
-    tr.appendChild(th); tr.appendChild(td);
-    return tr;
+    var row = App.h('div', 'd-metarow');
+    row.appendChild(App.h('span', '', label));
+    row.appendChild(App.h('b', '', value));
+    return row;
   }
 
   function cell(text, cls) {

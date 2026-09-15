@@ -427,19 +427,15 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
 .d-lines { font-size: 7pt; line-height: 1.42; color: #2b2b2b; }
 .d-lines div { white-space: pre-line; }
 .d-meta { flex: 0 0 auto; text-align: right; }
-.d-inv { font-size: 11pt; font-weight: 700; letter-spacing: .22em; margin: 0; }
-.d-metatable { border-collapse: collapse; margin-left: auto; font-size: 7.5pt; }
-.d-metatable th { text-align: right; font-weight: 500; color: #2b2b2b; padding: 0.4mm 2mm 0.4mm 0; white-space: nowrap; }
-.d-metatable td { text-align: right; font-weight: 700; padding: 0.4mm 0; white-space: nowrap; }
+.d-inv { font-size: 11pt; font-weight: 700; letter-spacing: .22em; margin: 0 0 1.6mm; }
+.d-metablock { flex: 0 0 auto; }
+.d-metarow { display: flex; justify-content: flex-end; gap: 2mm; font-size: 7.5pt; line-height: 1.45; white-space: nowrap; }
+.d-metarow span { font-weight: 500; color: #2b2b2b; }
+.d-metarow b { font-weight: 700; }
 
 .d-rule { height: 1.6pt; background: #000; margin: 3mm 0 0; }
 
-.d-billto { display: flex; align-items: flex-start; gap: 6mm; padding: 3mm 0 0; }
-.d-bt-l { flex: 1; min-width: 0; }
-/* the meta column's first line sits on the BILL TO label's baseline */
-.d-billto .d-metatable { flex: 0 0 auto; margin-top: -0.35mm; }
-.d-billto .d-metatable tr:first-child th,
-.d-billto .d-metatable tr:first-child td { padding-top: 0; }
+.d-billto { padding: 3mm 0 0; }
 .d-lbl { font-size: 6.4pt; font-weight: 700; letter-spacing: .18em; color: #6b6b6b; margin: 0 0 1mm; }
 .d-party { font-size: 9.5pt; font-weight: 700; line-height: 1.2; margin: 0; }
 .d-partysub { font-size: 7pt; color: #2b2b2b; line-height: 1.4; margin: 0.8mm 0 0; white-space: pre-line; max-width: 78mm; }
