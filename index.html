@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shaheen Traders — Invoicing</title>
+<meta name="description" content="Offline invoicing for Shaheen Traders, Sargodha.">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Shaheen Traders">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./logo.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<!-- ============ APP ============ -->
+<div id="app">
+
+  <header class="appbar">
+    <img class="appbar-logo" src="./logo.png" alt="">
+    <div class="appbar-title">
+      <strong id="hdrName">Shaheen Traders</strong>
+      <span id="hdrSub">Sargodha</span>
+    </div>
+    <button class="iconbtn" id="setupBtn" aria-label="Setup" title="Setup">
+      <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5Zm7.43-2.53a7.6 7.6 0 0 0 0-1.94l2.03-1.58a.5.5 0 0 0 .12-.63l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.4 7.4 0 0 0-1.68-.97l-.36-2.54a.5.5 0 0 0-.5-.43h-3.84a.5.5 0 0 0-.5.43l-.36 2.54a7.4 7.4 0 0 0-1.68.97l-2.39-.96a.5.5 0 0 0-.6.22L2.42 8.82a.5.5 0 0 0 .12.63l2.03 1.58a7.6 7.6 0 0 0 0 1.94l-2.03 1.58a.5.5 0 0 0-.12.63l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.52.4 1.08.72 1.68.97l.36 2.54a.5.5 0 0 0 .5.43h3.84a.5.5 0 0 0 .5-.43l.36-2.54c.6-.25 1.16-.58 1.68-.97l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.63Z"/></svg>
+    </button>
+  </header>
+
+  <main id="main">
+
+    <!-- ---------- BILL ---------- -->
+    <section class="tabpane" id="pane-bill">
+      <div class="band">
+        <div class="frow">
+          <label class="flabel" for="billNumber">Invoice no.</label>
+          <input class="finput num" id="billNumber" type="text" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="frow">
+          <label class="flabel" for="billDate">Date</label>
+          <input class="finput num" id="billDate" type="date">
+        </div>
+        <button class="frow frow-tap" id="billPartyBtn" type="button">
+          <span class="flabel">Bill to</span>
+          <span class="fvalue" id="billPartyName">Cash Customer</span>
+          <span class="chev" aria-hidden="true">›</span>
+        </button>
+      </div>
+
+      <div class="sechead">
+        <span>Items</span>
+        <span class="sechead-note" id="billSelCount"></span>
+      </div>
+
+      <button class="addrow" id="billAddItem" type="button"><span class="plus">+</span> Add new item</button>
+
+      <div class="searchwrap">
+        <input class="search" id="itemSearch" type="search" placeholder="Search items" autocomplete="off">
+      </div>
+
+      <div id="itemList" class="itemlist"></div>
+      <div id="itemListEmpty" class="empty hidden">
+        <p class="empty-t">No items yet</p>
+        <p class="empty-d">Add an item once — name, unit and rate — and it stays saved for every future invoice.</p>
+      </div>
+      <div id="itemSearchEmpty" class="empty hidden">
+        <p class="empty-d">No item matches that search.</p>
+      </div>
+      <div class="billfoot"></div>
+    </section>
+
+    <!-- ---------- ITEMS ---------- -->
+    <section class="tabpane hidden" id="pane-items">
+      <div class="sechead"><span>Item master</span><span class="sechead-note" id="itemsCount"></span></div>
+      <button class="addrow" id="itemsAdd" type="button"><span class="plus">+</span> Add new item</button>
+      <div id="masterList" class="itemlist"></div>
+      <div id="masterEmpty" class="empty hidden">
+        <p class="empty-t">Your item list is empty</p>
+        <p class="empty-d">Items are added once and then saved on this device. Add the goods you trade most — each with a unit and a default rate — and billing becomes a matter of typing quantities.</p>
+      </div>
+    </section>
+
+    <!-- ---------- PARTIES ---------- -->
+    <section class="tabpane hidden" id="pane-parties">
+      <div class="statband">
+        <span class="stat-l">Total outstanding</span>
+        <span class="stat-v num owed" id="totalOutstanding">Rs 0</span>
+      </div>
+      <button class="addrow" id="partiesAdd" type="button"><span class="plus">+</span> Add new party</button>
+      <div id="partyList" class="itemlist"></div>
+      <div id="partyEmpty" class="empty hidden">
+        <p class="empty-t">No parties yet</p>
+        <p class="empty-d">Add the hotels, karyana stores and canteens you bill on account. Cash customers do not need to be saved.</p>
+      </div>
+    </section>
+
+    <!-- ---------- RECORDS ---------- -->
+    <section class="tabpane hidden" id="pane-records">
+      <div class="statgrid">
+        <div class="statcell"><span class="stat-l">Invoices</span><span class="stat-v num" id="recCount">0</span></div>
+        <div class="statcell"><span class="stat-l">Billed</span><span class="stat-v num" id="recBilled">Rs 0</span></div>
+        <div class="statcell"><span class="stat-l">Received</span><span class="stat-v num recv" id="recReceived">Rs 0</span></div>
+        <div class="statcell"><span class="stat-l">Outstanding</span><span class="stat-v num owed" id="recOutstanding">Rs 0</span></div>
+      </div>
+      <div class="searchwrap">
+        <input class="search" id="recSearch" type="search" placeholder="Search by number or party" autocomplete="off">
+      </div>
+      <div id="recList" class="itemlist"></div>
+      <div id="recEmpty" class="empty hidden">
+        <p class="empty-t">No invoices saved</p>
+        <p class="empty-d">Every invoice you save is kept here on this device, with its payment status.</p>
+      </div>
+    </section>
+
+    <!-- ---------- SETUP ---------- -->
+    <section class="tabpane hidden" id="pane-setup">
+      <div class="sechead"><span>Business details</span><span class="sechead-note">printed on every invoice</span></div>
+      <div class="band">
+        <div class="frow"><label class="flabel" for="suName">Name</label><input class="finput" id="suName" type="text" autocomplete="organization"></div>
+        <div class="frow"><label class="flabel" for="suPhone">Phone</label><input class="finput num" id="suPhone" type="tel" inputmode="tel" autocomplete="tel"></div>
+        <div class="frow"><label class="flabel" for="suEmail">Email</label><input class="finput" id="suEmail" type="email" autocomplete="email" spellcheck="false"></div>
+        <div class="frow frow-area"><label class="flabel" for="suAddress">Address</label><textarea class="finput" id="suAddress" rows="2"></textarea></div>
+        <div class="frow"><label class="flabel" for="suNtn">NTN</label><input class="finput num" id="suNtn" type="text" autocomplete="off"></div>
+        <div class="frow"><label class="flabel" for="suStrn">STRN</label><input class="finput num" id="suStrn" type="text" autocomplete="off"></div>
+      </div>
+      <p class="hint">Only your own NTN and STRN are printed. The buyer's tax numbers are never shown on an invoice.</p>
+
+      <div class="sechead"><span>Invoice numbering</span></div>
+      <div class="band">
+        <div class="frow"><label class="flabel" for="suPrefix">Prefix</label><input class="finput num" id="suPrefix" type="text" autocomplete="off"></div>
+        <div class="frow"><label class="flabel" for="suNext">Next number</label><input class="finput num" id="suNext" type="text" inputmode="numeric"></div>
+      </div>
+      <p class="hint">The number is filled in for you and stays editable on every invoice.</p>
+
+      <div class="actionpad">
+        <button class="btn btn-solid" id="suSave" type="button">Save business details</button>
+      </div>
+
+      <div class="sechead"><span>Backup</span></div>
+      <p class="hint warn">Your data lives only in this browser, on this device. Clearing browser storage or changing phone erases it. Take a backup regularly.</p>
+      <div class="actionpad two">
+        <button class="btn" id="suBackup" type="button">Download backup</button>
+        <button class="btn" id="suRestore" type="button">Restore backup</button>
+      </div>
+      <input type="file" id="suRestoreFile" accept="application/json,.json" class="hidden-file">
+      <p class="hint" id="storageNote"></p>
+      <p class="hint version">Shaheen Traders invoicing · works offline · v1</p>
+    </section>
+
+  </main>
+
+  <div class="totalbar hidden" id="totalBar">
+    <div class="tb-l">
+      <span class="tb-lbl">Invoice total</span>
+      <span class="tb-val num" id="tbTotal">Rs 0</span>
+    </div>
+    <button class="tb-btn" id="reviewBtn" type="button" disabled>Review</button>
+  </div>
+
+  <nav class="tabbar" id="tabbar">
+    <button class="tab is-on" data-tab="bill" type="button"><span class="tab-i" aria-hidden="true">₨</span><span>Bill</span></button>
+    <button class="tab" data-tab="items" type="button"><span class="tab-i" aria-hidden="true">≡</span><span>Items</span></button>
+    <button class="tab" data-tab="parties" type="button"><span class="tab-i" aria-hidden="true">◎</span><span>Parties</span></button>
+    <button class="tab" data-tab="records" type="button"><span class="tab-i" aria-hidden="true">▤</span><span>Records</span></button>
+  </nav>
+</div>
+
+<!-- ============ SHEETS ============ -->
+<div class="sheetwrap hidden" id="sheetWrap">
+  <div class="sheet-scrim" id="sheetScrim"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 class="sheet-title" id="sheetTitle"></h2>
+      <button class="sheet-x" id="sheetClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<!-- ============ INVOICE ============ -->
+<div id="invoiceView" class="hidden">
+  <div class="iv-bar">
+    <button class="iv-back" id="ivBack" type="button">‹ Back</button>
+    <span class="iv-name" id="ivNumber"></span>
+    <button class="iv-print" id="ivPrint" type="button">Print / PDF</button>
+  </div>
+  <p class="iv-note">Set the paper size to <strong>A5</strong> in the print dialog. Choose “Save as PDF” to send it on WhatsApp.</p>
+  <div class="iv-stage" id="ivStage">
+    <div class="iv-fit" id="ivFit">
+      <div class="doc" id="doc"></div>
+    </div>
+  </div>
+</div>
+
+<div id="mmProbe" aria-hidden="true"></div>
+<div id="toast" class="toast hidden"></div>
+
+<script src="./js/store.js"></script>
+<script src="./js/state.js"></script>
+<script src="./js/ui-bill.js"></script>
+<script src="./js/ui-items.js"></script>
+<script src="./js/ui-parties.js"></script>
+<script src="./js/ui-records.js"></script>
+<script src="./js/ui-setup.js"></script>
+<script src="./js/invoice.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>
