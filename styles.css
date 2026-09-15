@@ -397,8 +397,10 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
   max-width: var(--col); margin: 0 auto;
 }
 .iv-back { min-height: 44px; padding: 0 10px; background: none; border: 0; font-size: 15px; font-weight: 700; cursor: pointer; }
-.iv-name { flex: 1; text-align: center; font-size: 13px; font-weight: 800; letter-spacing: .06em; font-variant-numeric: tabular-nums; }
-.iv-print { min-height: 44px; padding: 0 14px; background: var(--ink); color: var(--paper); border: 0; border-radius: var(--radius); font-size: 14px; font-weight: 800; cursor: pointer; }
+.iv-name { flex: 1; text-align: center; padding-right: 54px; font-size: 13px; font-weight: 800; letter-spacing: .06em; font-variant-numeric: tabular-nums; }
+.iv-actions { display: flex; gap: 10px; max-width: var(--col); margin: 0 auto; padding: 12px 12px 0; }
+.iv-actions .btn { flex: 1; min-height: 48px; font-size: 14px; }
+.iv-actions .btn:disabled { opacity: .55; cursor: default; }
 .iv-note { max-width: var(--col); margin: 10px auto 0; padding: 0 14px; font-size: 12px; color: var(--muted); line-height: 1.45; }
 .iv-stage { padding: 14px 12px 0; overflow: hidden; }
 .iv-fit { transform-origin: top left; }
@@ -425,14 +427,19 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
 .d-lines { font-size: 7pt; line-height: 1.42; color: #2b2b2b; }
 .d-lines div { white-space: pre-line; }
 .d-meta { flex: 0 0 auto; text-align: right; }
-.d-inv { font-size: 11pt; font-weight: 700; letter-spacing: .22em; margin: 0 0 1.5mm; }
+.d-inv { font-size: 11pt; font-weight: 700; letter-spacing: .22em; margin: 0; }
 .d-metatable { border-collapse: collapse; margin-left: auto; font-size: 7.5pt; }
 .d-metatable th { text-align: right; font-weight: 500; color: #2b2b2b; padding: 0.4mm 2mm 0.4mm 0; white-space: nowrap; }
 .d-metatable td { text-align: right; font-weight: 700; padding: 0.4mm 0; white-space: nowrap; }
 
 .d-rule { height: 1.6pt; background: #000; margin: 3mm 0 0; }
 
-.d-billto { padding: 3mm 0 0; }
+.d-billto { display: flex; align-items: flex-start; gap: 6mm; padding: 3mm 0 0; }
+.d-bt-l { flex: 1; min-width: 0; }
+/* the meta column's first line sits on the BILL TO label's baseline */
+.d-billto .d-metatable { flex: 0 0 auto; margin-top: -0.35mm; }
+.d-billto .d-metatable tr:first-child th,
+.d-billto .d-metatable tr:first-child td { padding-top: 0; }
 .d-lbl { font-size: 6.4pt; font-weight: 700; letter-spacing: .18em; color: #6b6b6b; margin: 0 0 1mm; }
 .d-party { font-size: 9.5pt; font-weight: 700; line-height: 1.2; margin: 0; }
 .d-partysub { font-size: 7pt; color: #2b2b2b; line-height: 1.4; margin: 0.8mm 0 0; white-space: pre-line; max-width: 78mm; }
@@ -472,7 +479,7 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
   html, body { background: #fff !important; }
   body > *:not(#invoiceView) { display: none !important; }
   #invoiceView { position: static !important; inset: auto !important; overflow: visible !important; padding: 0 !important; background: #fff !important; }
-  .iv-bar, .iv-note { display: none !important; }
+  .iv-bar, .iv-note, .iv-actions { display: none !important; }
   .iv-stage { padding: 0 !important; overflow: visible !important; }
   .iv-fit { transform: none !important; margin: 0 !important; width: auto !important; height: auto !important; }
   .doc {
@@ -485,6 +492,20 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
   .d-foot, .d-sign { page-break-inside: avoid; break-inside: avoid; }
   .appbar-logo, .d-logo { filter: none !important; }
 }
+
+/* search groups: what the trader has saved, then what he could add */
+.grouplbl {
+  padding: 11px 14px 5px;
+  background: var(--surface);
+  border-top: 1px solid var(--line-2);
+  font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted);
+}
+.itemlist.suggest:empty { display: none; }
+.itemlist.suggest .irow-main { opacity: .74; }
+.itemlist.suggest .irow-name { font-weight: 600; }
+.itemlist.suggest .cbox { border-style: dashed; color: var(--muted); font-weight: 700; }
+.sugg-add { flex: 0 0 auto; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 
 /* records row: an invoice opens on tap, its options hang off the end */
 .recrow { display: flex; align-items: center; border-bottom: 1px solid var(--line); }

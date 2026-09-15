@@ -15,6 +15,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
 <link rel="stylesheet" href="./styles.css">
+<!-- pinned, plain scripts (no modules), cached by the service worker for offline use -->
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 
@@ -63,7 +66,10 @@
         <input class="search" id="itemSearch" type="search" placeholder="Search items" autocomplete="off">
       </div>
 
+      <div class="grouplbl hidden" id="lblYours">Your items</div>
       <div id="itemList" class="itemlist"></div>
+      <div class="grouplbl hidden" id="lblSuggest">Add from list</div>
+      <div id="suggestList" class="itemlist suggest"></div>
       <div id="itemListEmpty" class="empty hidden">
         <p class="empty-t">No items yet</p>
         <p class="empty-d">Add an item once — name, unit and rate — and it stays saved for every future invoice.</p>
@@ -187,9 +193,12 @@
   <div class="iv-bar">
     <button class="iv-back" id="ivBack" type="button">‹ Back</button>
     <span class="iv-name" id="ivNumber"></span>
-    <button class="iv-print" id="ivPrint" type="button">Print / PDF</button>
   </div>
-  <p class="iv-note">Set the paper size to <strong>A5</strong> in the print dialog. Choose “Save as PDF” to send it on WhatsApp.</p>
+  <div class="iv-actions">
+    <button class="btn" id="ivPrint" type="button">Print / PDF</button>
+    <button class="btn btn-solid" id="ivShare" type="button">Share on WhatsApp</button>
+  </div>
+  <p class="iv-note">Set the paper size to <strong>A5</strong> in the print dialog. Sharing attaches the invoice as a PDF.</p>
   <div class="iv-stage" id="ivStage">
     <div class="iv-fit" id="ivFit">
       <div class="doc" id="doc"></div>
@@ -202,6 +211,7 @@
 
 <script src="./js/store.js"></script>
 <script src="./js/state.js"></script>
+<script src="./js/catalogue.js"></script>
 <script src="./js/ui-bill.js"></script>
 <script src="./js/ui-items.js"></script>
 <script src="./js/ui-parties.js"></script>

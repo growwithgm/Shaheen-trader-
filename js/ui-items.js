@@ -23,8 +23,8 @@ var UIItems = (function () {
     t.appendChild(App.h('div', 'rowbtn-sub', 'per ' + item.unit));
     b.appendChild(t);
     var a = App.h('div', 'rowbtn-amt');
-    a.appendChild(App.h('b', 'num', 'Rs ' + Fmt.group(item.defaultRate, 2)));
-    a.appendChild(App.h('span', '', 'default rate'));
+    a.appendChild(App.h('b', 'num', item.defaultRate ? 'Rs ' + Fmt.group(item.defaultRate, 2) : '—'));
+    a.appendChild(App.h('span', '', item.defaultRate ? 'default rate' : 'no default rate'));
     b.appendChild(a);
     b.addEventListener('click', function () { openForm(item); });
     return b;

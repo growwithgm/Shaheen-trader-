@@ -30,16 +30,20 @@ var Store = (function () {
     };
   }
 
+  /* The real business, so a fresh install is ready to bill. These are only
+     ever a floor: normalize() puts them *underneath* whatever is already
+     stored, so a value the user has saved — including one they cleared on
+     purpose — is never written over. */
   function defaultBusiness() {
     return {
       name: 'Shaheen Traders',
-      ntn: '',
+      ntn: '5286966-6',
       strn: '',
-      phone: '',
+      phone: '03086701790',
       email: '',
-      address: '',
-      invoicePrefix: 'ST-',
-      nextNumber: 1002
+      address: 'Shaheen Traders, Air Base, Sargodha',
+      invoicePrefix: '',
+      nextNumber: 81
     };
   }
 
@@ -61,12 +65,12 @@ var Store = (function () {
     var rb = raw.business && typeof raw.business === 'object' ? raw.business : {};
     var b = {
       name: str(rb.name, d.business.name),
-      ntn: str(rb.ntn),
-      strn: str(rb.strn),
-      phone: str(rb.phone),
-      email: str(rb.email),
-      address: str(rb.address),
-      invoicePrefix: str(rb.invoicePrefix, d.business.invoicePrefix),
+      ntn: str(rb.ntn, d.business.ntn),
+      strn: str(rb.strn, d.business.strn),
+      phone: str(rb.phone, d.business.phone),
+      email: str(rb.email, d.business.email),
+      address: str(rb.address, d.business.address),
+      invoicePrefix: typeof rb.invoicePrefix === 'string' ? rb.invoicePrefix : d.business.invoicePrefix,
       nextNumber: Math.max(1, Math.round(n(rb.nextNumber, d.business.nextNumber)))
     };
 

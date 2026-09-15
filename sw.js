@@ -1,7 +1,7 @@
 /* sw.js — cache the shell so the app opens in airplane mode.
    Every path is relative: this is served from a GitHub Pages project
    subdirectory, so a leading slash would point at the wrong origin root. */
-var CACHE = 'shaheen-traders-v1';
+var CACHE = 'shaheen-traders-v2';
 
 var SHELL = [
   './',
@@ -12,6 +12,7 @@ var SHELL = [
   './icon-192.png',
   './icon-512.png',
   './js/store.js',
+  './js/catalogue.js',
   './js/state.js',
   './js/ui-bill.js',
   './js/ui-items.js',
@@ -19,8 +20,16 @@ var SHELL = [
   './js/ui-records.js',
   './js/ui-setup.js',
   './js/invoice.js',
-  './js/app.js'
+  './js/app.js',
+  /* pinned third-party, so WhatsApp sharing keeps working with no network */
+  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
+
+/* the pinned third-party files, so they can also be picked up at runtime if
+   the install-time precache did not manage to fetch them */
+var REMOTE = SHELL.filter(function (u) { return u.indexOf('http') === 0; });
+function isPinnedRemote(url) { return REMOTE.indexOf(url) >= 0; }
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
@@ -68,7 +77,7 @@ self.addEventListener('fetch', function (e) {
     caches.match(req).then(function (hit) {
       if (hit) { return hit; }
       return fetch(req).then(function (res) {
-        if (res && res.status === 200 && res.type === 'basic') {
+        if (res && res.status === 200 && (res.type === 'basic' || (res.type === 'cors' && isPinnedRemote(req.url)))) {
           var copy = res.clone();
           caches.open(CACHE).then(function (c) { c.put(req, copy); })['catch'](function () {});
         }

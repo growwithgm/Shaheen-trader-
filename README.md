@@ -33,6 +33,7 @@ manifest.json     PWA manifest (installable from the browser menu)
 sw.js             caches the shell so the app opens offline
 icon-*.png        app icons, generated from the logo
 js/store.js       localStorage read/write, schema defaults, export & import
+js/catalogue.js   the produce suggestion dictionary (English + Roman Urdu)
 js/state.js       the in-memory book, the draft invoice, derived totals
 js/ui-bill.js     the billing screen
 js/ui-items.js    the item master
@@ -44,7 +45,10 @@ js/app.js         boot, tab navigation, sheets, toasts
 ```
 
 Scripts are ordinary `<script src="./…">` tags in dependency order at the end of
-`<body>` — no modules, no imports. Every path in the project is relative, because
+`<body>` — no modules, no imports. Two pinned third-party files, `html2canvas`
+1.4.1 and `jspdf` 2.5.1, load `async` from cdnjs and are used only by the
+WhatsApp share; the service worker caches them, so sharing keeps working
+offline after the first online visit. Every path in the project is relative, because
 GitHub Pages serves this from `/Shaheen-trader-/` and a leading slash would 404.
 
 ## GitHub Pages
@@ -54,6 +58,40 @@ Pushing to `main` publishes; there is no workflow and no build.
 
 After a deploy the browser may still hold the old service worker for a moment.
 A second refresh picks up the new version.
+
+## Finding an item: Roman Urdu search
+
+The item master starts empty and only ever holds what has actually been billed.
+Underneath it sits a built-in dictionary of produce sold in Pakistan — it is not
+a catalogue you browse and it carries no rates. It only surfaces in the Bill
+tab's search box, under *Add from list*, below your own matching items.
+
+Search matches the English name and the Roman Urdu word: `aloo` finds Potato,
+`tamatar` finds Tomato, `bhindi` finds Okra, `kela` finds Banana. Tapping a
+suggestion creates the item, drops it onto the invoice with the cursor in the
+qty field, and from then on it is an ordinary saved item — put a rate on it once
+and it stays. A saved item keeps answering to the same Roman Urdu word.
+
+To add something the dictionary does not know, use **+ Add new item**.
+
+## Sharing on WhatsApp
+
+The invoice view has **Share on WhatsApp** next to Print / PDF. It snapshots the
+A5 page, builds a PDF, and hands it to the phone's share sheet, so it can be
+sent into any chat. If the party has a saved phone number, the desktop fallback
+opens that chat directly (`0300…` is converted to `92300…`).
+
+Two things worth knowing:
+
+- The PDF is a **raster** of the page: it looks exactly like the print, but the
+  text is not selectable and the file is roughly 200–400 KB. That is fine for
+  WhatsApp. If the size ever becomes a problem, the fix is to redraw the invoice
+  with jsPDF's text API instead of snapshotting it — crisp vector text at around
+  30 KB, at the cost of maintaining the layout in two places.
+- File sharing needs **HTTPS**. GitHub Pages serves over HTTPS so this works
+  live, but it will not work when `index.html` is opened from `file://` during
+  local testing. On desktop browsers, which mostly cannot share files, the PDF
+  downloads and a WhatsApp link opens so you can attach it yourself.
 
 ## Printing
 
@@ -86,5 +124,7 @@ These came from the client and are deliberate. Do not reintroduce them:
 3. No terms block — the footer holds the signature line only.
 4. Only the seller's NTN and STRN appear. A party has no tax fields at all, and
    the buyer's numbers are never printed.
-5. No pre-loaded item catalogue. The app ships empty.
+5. No pre-loaded item *master*. The app's own item list ships empty and only
+   fills with what has been billed. The built-in dictionary is a search aid with
+   no rates, never a list you scroll.
 6. The invoice number is editable on every invoice.

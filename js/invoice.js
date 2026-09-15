@@ -5,7 +5,7 @@
 var Invoice = (function () {
   'use strict';
 
-  var view, docEl, fitEl, stage, numberEl, current = null, pushed = false;
+  var view, docEl, fitEl, stage, numberEl, shareBtn, current = null, pushed = false, busy = false;
 
   function txt(el, s) { el.textContent = s; return el; }
 
@@ -67,13 +67,6 @@ var Invoice = (function () {
 
     var meta = App.h('div', 'd-meta');
     meta.appendChild(App.h('div', 'd-inv', 'INVOICE'));
-    var table = document.createElement('table');
-    table.className = 'd-metatable';
-    var tb = document.createElement('tbody');
-    tb.appendChild(metaRow('Invoice No.', inv.number));
-    tb.appendChild(metaRow('Date', Fmt.date(inv.date)));
-    table.appendChild(tb);
-    meta.appendChild(table);
     head.appendChild(meta);
 
     docEl.appendChild(head);
@@ -81,14 +74,27 @@ var Invoice = (function () {
     /* 2 — the rule */
     docEl.appendChild(App.h('div', 'd-rule'));
 
-    /* 3 — bill to. The right half of this band stays empty by design. */
+    /* 3 — bill to on the left, the invoice number and date on the right.
+       No supply details: that is the block this band must never grow back. */
     var billto = App.h('div', 'd-billto');
-    billto.appendChild(App.h('p', 'd-lbl', 'BILL TO'));
-    billto.appendChild(App.h('p', 'd-party', party ? party.name : 'Cash Customer'));
+
+    var left = App.h('div', 'd-bt-l');
+    left.appendChild(App.h('p', 'd-lbl', 'BILL TO'));
+    left.appendChild(App.h('p', 'd-party', party ? party.name : 'Cash Customer'));
     if (party) {
       var sub = [party.address, party.phone].filter(Boolean).join('\n');
-      if (sub) { billto.appendChild(App.h('p', 'd-partysub', sub)); }
+      if (sub) { left.appendChild(App.h('p', 'd-partysub', sub)); }
     }
+    billto.appendChild(left);
+
+    var table = document.createElement('table');
+    table.className = 'd-metatable';
+    var tb = document.createElement('tbody');
+    tb.appendChild(metaRow('Invoice No.', inv.number));
+    tb.appendChild(metaRow('Date', Fmt.date(inv.date)));
+    table.appendChild(tb);
+    billto.appendChild(table);
+
     docEl.appendChild(billto);
 
     /* 4 — line items */
@@ -188,14 +194,151 @@ var Invoice = (function () {
     stage.style.height = Math.ceil(docEl.offsetHeight * scale) + 'px';
   }
 
+  /* ---------------- WhatsApp ----------------
+     The invoice on screen is snapshotted into an A5 PDF and handed to the
+     phone's share sheet. Raster, so it looks exactly like the print. */
+
+  function libsReady() {
+    return typeof window.html2canvas === 'function' && window.jspdf && window.jspdf.jsPDF;
+  }
+
+  function fileNameFor(inv) {
+    var party = State.partyById(inv.partyId);
+    var base = 'Invoice-' + inv.number + '-' + (party ? party.name : 'Cash Customer');
+    return base.replace(/[\\/]+/g, '').replace(/\s+/g, '') + '.pdf';
+  }
+
+  function waMessage(inv) {
+    var b = State.business();
+    var party = State.partyById(inv.partyId);
+    return [
+      b.name || 'Shaheen Traders',
+      'Invoice ' + inv.number,
+      party ? party.name : 'Cash Customer',
+      'Total: Rs ' + Fmt.group(inv.total, 2)
+    ].join('\n');
+  }
+
+  /* 0300… -> 92300…, so a saved number opens that chat directly */
+  function waPhone(inv) {
+    var party = State.partyById(inv.partyId);
+    var d = String((party && party.phone) || '').replace(/[^0-9]/g, '');
+    if (!d) { return ''; }
+    if (d.charAt(0) === '0') { return '92' + d.slice(1); }
+    if (d.length === 10 && d.charAt(0) === '3') { return '92' + d; }
+    return d;
+  }
+
+  function waUrl(inv) {
+    return 'https://wa.me/' + waPhone(inv) + '?text=' + encodeURIComponent(waMessage(inv));
+  }
+
+  function buildPdfBlob() {
+    return new Promise(function (resolve, reject) {
+      if (!libsReady()) { reject(new Error('libs')); return; }
+
+      /* the preview transform must come off, or the snapshot scales wrong */
+      var prevTransform = fitEl.style.transform;
+      var prevMargin = fitEl.style.marginLeft;
+      var prevHeight = stage.style.height;
+      var prevBorder = docEl.style.border;
+      function restore() {
+        fitEl.style.transform = prevTransform;
+        fitEl.style.marginLeft = prevMargin;
+        stage.style.height = prevHeight;
+        docEl.style.border = prevBorder;
+        fit();
+      }
+      fitEl.style.transform = 'none';
+      fitEl.style.marginLeft = '0';
+      stage.style.height = '';
+      docEl.style.border = 'none';   /* the preview's edge is not part of the page */
+
+      window.html2canvas(docEl, { scale: 3, backgroundColor: '#ffffff', useCORS: true, logging: false })
+        .then(function (canvas) {
+          restore();
+          var pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+          var W = 148, H = 210;
+          /* JPEG, not PNG: jsPDF stores an unsupported PNG as a raw bitmap and
+             a 15MB file is useless on WhatsApp. This lands around 300KB. */
+          var img = canvas.toDataURL('image/jpeg', 0.92);
+          var imgH = canvas.height * W / canvas.width;
+          if (imgH <= H + 1) {
+            pdf.addImage(img, 'JPEG', 0, 0, W, H);
+          } else {
+            /* a long invoice keeps its proportions and runs onto more pages */
+            var y = 0, page = 0;
+            while (y < imgH - 0.5 && page < 20) {
+              if (page > 0) { pdf.addPage(); }
+              pdf.addImage(img, 'JPEG', 0, -y, W, imgH);
+              y += H;
+              page++;
+            }
+          }
+          resolve(pdf.output('blob'));
+        })['catch'](function (err) { restore(); reject(err); });
+    });
+  }
+
+  function download(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+
+  function fallbackShare(blob, name, inv) {
+    download(blob, name);
+    App.toast('PDF downloaded — attach it in WhatsApp');
+    try { window.open(waUrl(inv), '_blank'); } catch (e) { /* popup blocked, the file is still there */ }
+  }
+
+  function setBusy(on) {
+    busy = on;
+    shareBtn.disabled = on;
+    shareBtn.textContent = on ? 'Preparing PDF…' : 'Share on WhatsApp';
+  }
+
+  function share() {
+    if (busy || !current) { return; }
+    var inv = current;
+    if (!libsReady()) {
+      App.toast(navigator.onLine
+        ? 'PDF tools are still loading — try again in a moment'
+        : 'Open the app once with internet, then sharing works offline too');
+      return;
+    }
+    setBusy(true);
+    buildPdfBlob().then(function (blob) {
+      var name = fileNameFor(inv);
+      var file = null;
+      try { file = new File([blob], name, { type: 'application/pdf' }); } catch (e) { file = null; }
+      if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file], title: name })['catch'](function (err) {
+          if (err && err.name === 'AbortError') { return; }   /* user backed out — say nothing */
+          fallbackShare(blob, name, inv);
+        });
+      }
+      fallbackShare(blob, name, inv);
+    })['catch'](function () {
+      App.toast('Could not make the PDF — use Print / PDF instead');
+    }).then(function () { setBusy(false); });
+  }
+
   function mount() {
     view = document.getElementById('invoiceView');
     docEl = document.getElementById('doc');
     fitEl = document.getElementById('ivFit');
     stage = document.getElementById('ivStage');
     numberEl = document.getElementById('ivNumber');
+    shareBtn = document.getElementById('ivShare');
 
     document.getElementById('ivBack').addEventListener('click', close);
+    shareBtn.addEventListener('click', share);
     document.getElementById('ivPrint').addEventListener('click', function () {
       try { window.print(); } catch (e) { App.toast('Printing is not available here'); }
     });

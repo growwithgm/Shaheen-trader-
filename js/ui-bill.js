@@ -6,7 +6,8 @@ var UIBill = (function () {
   'use strict';
 
   var listHost, emptyAll, emptySearch, searchInput, numberInput, dateInput,
-      partyBtn, partyName, selCount, tbTotal, reviewBtn;
+      partyBtn, partyName, selCount, tbTotal, reviewBtn,
+      suggestHost, lblYours, lblSuggest;
 
   function valueOf(n) { return n ? Fmt.plain(n, 3) : ''; }
 
@@ -27,14 +28,17 @@ var UIBill = (function () {
   function buildRow(item) {
     var row = App.h('div', 'irow');
     row.setAttribute('data-id', item.id);
-    row.setAttribute('data-name', item.name.toLowerCase());
+    row.setAttribute('data-name',
+      (item.name + ' ' + Catalogue.aliasesFor(item.name).join(' ')).toLowerCase());
 
     var main = App.h('button', 'irow-main');
     main.type = 'button';
     var box = App.h('span', 'cbox', '✓');
     var t = App.h('div', 'irow-t');
     t.appendChild(App.h('div', 'irow-name', item.name));
-    t.appendChild(App.h('div', 'irow-sub', 'Rs ' + Fmt.group(item.defaultRate, 2) + ' / ' + item.unit));
+    t.appendChild(App.h('div', 'irow-sub', item.defaultRate
+      ? 'Rs ' + Fmt.group(item.defaultRate, 2) + ' / ' + item.unit
+      : 'per ' + item.unit + ' · rate not set yet'));
     var amt = App.h('div', 'irow-amt num', '—');
     main.appendChild(box); main.appendChild(t); main.appendChild(amt);
 
@@ -170,10 +174,64 @@ var UIBill = (function () {
       rows[i].style.display = hit ? '' : 'none';
       if (hit) { shown++; }
     }
+
     var any = State.get().items.length > 0;
-    emptyAll.classList.toggle('hidden', any);
-    emptySearch.classList.toggle('hidden', !any || shown > 0);
-    listHost.classList.toggle('hidden', !any);
+    var suggestions = q ? Catalogue.search(q, takenNames()) : [];
+    renderSuggestions(suggestions);
+
+    /* the catalogue only ever appears as an answer to a search */
+    lblYours.classList.toggle('hidden', !q || shown === 0);
+    lblSuggest.classList.toggle('hidden', suggestions.length === 0);
+    listHost.classList.toggle('hidden', shown === 0);
+    emptyAll.classList.toggle('hidden', any || !!q);
+    emptySearch.classList.toggle('hidden', !q || shown > 0 || suggestions.length > 0);
+  }
+
+  function takenNames() {
+    var taken = {};
+    State.get().items.forEach(function (it) { taken[it.name.toLowerCase()] = true; });
+    return taken;
+  }
+
+  /* A suggestion is not an item yet: no rate, no place in the master, and
+     nothing saved until it is tapped. */
+  function renderSuggestions(entries) {
+    suggestHost.textContent = '';
+    entries.forEach(function (e) {
+      var row = App.h('div', 'irow');
+      var main = App.h('button', 'irow-main');
+      main.type = 'button';
+      main.appendChild(App.h('span', 'cbox', '+'));
+      var t = App.h('div', 'irow-t');
+      t.appendChild(App.h('div', 'irow-name', e.name));
+      t.appendChild(App.h('div', 'irow-sub', 'per ' + e.unit + ' · rate not set yet'));
+      main.appendChild(t);
+      main.appendChild(App.h('div', 'sugg-add', 'Add'));
+      main.addEventListener('click', function () { adopt(e); });
+      row.appendChild(main);
+      suggestHost.appendChild(row);
+    });
+  }
+
+  /* Tapping a suggestion turns it into a real item and puts it straight on
+     the invoice, rate blank, cursor in the qty field. */
+  function adopt(entry) {
+    var item = State.addItem(entry.name, entry.unit, 0);
+    UIItems.refresh();
+    searchInput.value = '';
+    dropOntoInvoice(item);
+  }
+
+  function dropOntoInvoice(item) {
+    buildList();
+    var row = listHost.querySelector('.irow[data-id="' + item.id + '"]');
+    if (!row) { return; }
+    if (!State.isSelected(item.id)) {
+      var line = State.select(item.id);
+      dress(row, line, true);
+      refreshTotal();
+    }
+    row.scrollIntoView({ block: 'center' });
   }
 
   function refreshTotal() {
@@ -375,6 +433,9 @@ var UIBill = (function () {
     listHost = document.getElementById('itemList');
     emptyAll = document.getElementById('itemListEmpty');
     emptySearch = document.getElementById('itemSearchEmpty');
+    suggestHost = document.getElementById('suggestList');
+    lblYours = document.getElementById('lblYours');
+    lblSuggest = document.getElementById('lblSuggest');
     searchInput = document.getElementById('itemSearch');
     numberInput = document.getElementById('billNumber');
     dateInput = document.getElementById('billDate');
@@ -403,16 +464,8 @@ var UIBill = (function () {
 
     document.getElementById('billAddItem').addEventListener('click', function () {
       UIItems.openForm(null, function (item) {
-        buildList();
         searchInput.value = '';
-        applyFilter();
-        var row = listHost.querySelector('.irow[data-id="' + item.id + '"]');
-        if (row && !State.isSelected(item.id)) {
-          var line = State.select(item.id);
-          dress(row, line, true);
-          refreshTotal();
-          row.scrollIntoView({ block: 'center' });
-        }
+        dropOntoInvoice(item);
       });
     });
 
