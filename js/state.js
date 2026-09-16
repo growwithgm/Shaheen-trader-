@@ -323,7 +323,7 @@ var State = (function () {
     if (existing) { return existing; }
     var it = itemById(itemId);
     if (!it) { return null; }
-    var line = { itemId: itemId, qty: 0, rate: it.defaultRate, amount: 0, detail: '' };
+    var line = { itemId: itemId, count: 1, qty: 0, rate: it.defaultRate, amount: 0, detail: '' };
     data.draft.selected.push(line);
     persist();
     return line;
@@ -361,6 +361,16 @@ var State = (function () {
     return l;
   }
 
+  /* the pack count is carried on the invoice but never enters the money:
+     one bag weighing 32 kg is qty 1, measure 32 kg, and the rate is per kg */
+  function setCount(itemId, count) {
+    var l = selectedFor(itemId);
+    if (!l) { return null; }
+    l.count = Fmt.round(count, 3);
+    persist();
+    return l;
+  }
+
   function setDetail(itemId, detail) {
     var l = selectedFor(itemId);
     if (!l) { return null; }
@@ -385,6 +395,7 @@ var State = (function () {
       out.push({
         name: it.name,
         unit: it.unit,
+        count: s.count == null ? 1 : Fmt.round(s.count, 3),
         qty: Fmt.round(s.qty, 3),
         rate: Fmt.round(s.rate, 2),
         amount: Fmt.round(s.amount, 2),
@@ -478,7 +489,7 @@ var State = (function () {
     billedOnAccount: billedOnAccount, outstanding: outstanding, totalOutstanding: totalOutstanding,
     allocation: allocation, addPayment: addPayment, deletePayment: deletePayment,
     selectedFor: selectedFor, isSelected: isSelected, select: select, deselect: deselect,
-    setQty: setQty, setRate: setRate, setAmount: setAmount, setDetail: setDetail, setDraft: setDraft,
+    setQty: setQty, setRate: setRate, setAmount: setAmount, setCount: setCount, setDetail: setDetail, setDraft: setDraft,
     draftLines: draftLines, draftSubtotal: draftSubtotal, draftTotal: draftTotal,
     nextNumberString: nextNumberString, resetDraft: resetDraft,
     saveInvoice: saveInvoice, deleteInvoice: deleteInvoice,

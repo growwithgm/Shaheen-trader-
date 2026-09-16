@@ -74,6 +74,14 @@ and it stays. A saved item keeps answering to the same Roman Urdu word.
 
 To add something the dictionary does not know, use **+ Add new item**.
 
+## Qty and weight
+
+A line carries two numbers. **Qty** is how many bags, crates or packets went
+out; **weight** is the amount the rate is charged on, in that item's unit. One
+bag of potatoes weighing 32 kg at Rs 62/kg is qty 1, weight 32 kg, amount
+Rs 1,984 — the money follows the weight, and the qty is there so the buyer can
+count what arrived. Qty defaults to 1, so the common case needs no typing.
+
 ## Sharing on WhatsApp
 
 The invoice view has **Share on WhatsApp** next to Print / PDF. It snapshots the

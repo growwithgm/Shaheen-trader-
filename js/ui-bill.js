@@ -17,6 +17,12 @@ var UIBill = (function () {
     input.value = valueOf(v);
   }
 
+  /* the pack count defaults to one, so the common case needs no typing */
+  function setCountVal(input, v) {
+    if (!input || document.activeElement === input) { return; }
+    input.value = v == null ? '1' : Fmt.plain(v, 3);
+  }
+
   function rowOf(el) {
     while (el && el !== listHost) {
       if (el.classList && el.classList.contains('irow')) { return el; }
@@ -43,11 +49,14 @@ var UIBill = (function () {
     main.appendChild(box); main.appendChild(t); main.appendChild(amt);
 
     var edit = App.h('div', 'irow-edit hidden');
-    var grid = App.h('div', 'grid3');
-    grid.appendChild(field('Qty', 'f-qty'));
-    grid.appendChild(field('Rate', 'f-rate'));
-    grid.appendChild(field('Amount', 'f-amt'));
-    edit.appendChild(grid);
+    var top = App.h('div', 'grid2');
+    top.appendChild(field('Qty', 'f-count'));
+    top.appendChild(field(item.unit, 'f-qty'));
+    edit.appendChild(top);
+    var bottom = App.h('div', 'grid2 grid-next');
+    bottom.appendChild(field('Rate', 'f-rate'));
+    bottom.appendChild(field('Amount', 'f-amt'));
+    edit.appendChild(bottom);
 
     var dw = App.h('label', 'detailwrap');
     dw.appendChild(App.h('span', '', 'Detail'));
@@ -79,6 +88,7 @@ var UIBill = (function () {
   function dress(row, line, focusQty) {
     row.classList.add('is-on');
     row.querySelector('.irow-edit').classList.remove('hidden');
+    setCountVal(row.querySelector('.f-count'), line.count);
     setVal(row.querySelector('.f-qty'), line.qty);
     setVal(row.querySelector('.f-rate'), line.rate);
     setVal(row.querySelector('.f-amt'), line.amount);
@@ -95,6 +105,7 @@ var UIBill = (function () {
     row.classList.remove('is-on');
     row.querySelector('.irow-edit').classList.add('hidden');
     row.querySelector('.irow-amt').textContent = '—';
+    row.querySelector('.f-count').value = '';
     row.querySelector('.f-qty').value = '';
     row.querySelector('.f-rate').value = '';
     row.querySelector('.f-amt').value = '';
@@ -125,6 +136,10 @@ var UIBill = (function () {
     if (!line) { return; }
     var v = Fmt.num(t.value);
 
+    if (t.classList.contains('f-count')) {
+      State.setCount(id, t.value.trim() === '' ? 1 : v);
+      return;
+    }
     if (t.classList.contains('f-qty')) {
       State.setQty(id, v);
       setVal(row.querySelector('.f-amt'), line.amount);
@@ -133,7 +148,8 @@ var UIBill = (function () {
       setVal(row.querySelector('.f-amt'), line.amount);
     } else if (t.classList.contains('f-amt')) {
       State.setAmount(id, v);
-      setVal(row.querySelector('.f-qty'), line.qty);
+      setCountVal(row.querySelector('.f-count'), line.count);
+    setVal(row.querySelector('.f-qty'), line.qty);
     } else if (t.classList.contains('f-detail')) {
       State.setDetail(id, t.value);
       return;
@@ -152,6 +168,10 @@ var UIBill = (function () {
     if (!row) { return; }
     var line = State.selectedFor(row.getAttribute('data-id'));
     if (!line) { return; }
+    if (t.classList.contains('f-count')) {
+      State.setCount(id, t.value.trim() === '' ? 1 : v);
+      return;
+    }
     if (t.classList.contains('f-qty')) { t.value = valueOf(line.qty); }
     else if (t.classList.contains('f-rate')) { t.value = valueOf(line.rate); }
     else { t.value = valueOf(line.amount); }
@@ -312,7 +332,9 @@ var UIBill = (function () {
     lines.forEach(function (l) {
       var r = App.h('div', 'lineitem');
       r.appendChild(App.h('div', 'li-n', l.name));
-      r.appendChild(App.h('div', 'li-q', Fmt.qty(l.qty) + ' ' + l.unit + ' × ' + Fmt.group(l.rate, 2)));
+      r.appendChild(App.h('div', 'li-q',
+        Fmt.qty(l.qty) + ' ' + l.unit + ' × ' + Fmt.group(l.rate, 2) +
+        '  ·  qty ' + Fmt.qty(l.count)));
       r.appendChild(App.h('div', 'li-a', Fmt.group(l.amount, 2)));
       list.appendChild(r);
     });
