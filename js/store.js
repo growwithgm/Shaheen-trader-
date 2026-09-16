@@ -112,8 +112,7 @@ var Store = (function () {
         return {
           name: str(l.name),
           unit: str(l.unit),
-          count: l.count == null ? 1 : n(l.count, 1),   /* how many bags / lots */
-          qty: n(l.qty),                                 /* the measure the rate is charged on */
+          qty: n(l.qty),
           rate: n(l.rate),
           amount: n(l.amount),
           detail: str(l.detail)
@@ -154,7 +153,7 @@ var Store = (function () {
         if (!s || typeof s !== 'object' || !known[s.itemId]) { return null; }
         return {
           itemId: s.itemId,
-          count: s.count == null ? 1 : n(s.count, 1),
+          unit: UNITS.indexOf(s.unit) >= 0 ? s.unit : '',
           qty: n(s.qty),
           rate: n(s.rate),
           amount: n(s.amount),

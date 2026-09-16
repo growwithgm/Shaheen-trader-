@@ -74,13 +74,15 @@ and it stays. A saved item keeps answering to the same Roman Urdu word.
 
 To add something the dictionary does not know, use **+ Add new item**.
 
-## Qty and weight
+## Qty and unit
 
-A line carries two numbers. **Qty** is how many bags, crates or packets went
-out; **weight** is the amount the rate is charged on, in that item's unit. One
-bag of potatoes weighing 32 kg at Rs 62/kg is qty 1, weight 32 kg, amount
-Rs 1,984 — the money follows the weight, and the qty is there so the buyer can
-count what arrived. Qty defaults to 1, so the common case needs no typing.
+A line reads across: description, **qty**, **unit**, rate, amount — 5 kg of
+apples at Rs 250 is `Apple · 5 · kg · 250 · 1,250`. Qty × rate is the amount,
+and the unit is only the word that qty is counted in.
+
+The unit starts as whatever the saved item says, and can be changed on the line
+itself: one crate of bananas does not have to rewrite an item that is normally
+sold by the dozen. The item master keeps its own unit either way.
 
 ## Sharing on WhatsApp
 

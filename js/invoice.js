@@ -94,7 +94,7 @@ var Invoice = (function () {
     t.className = 'd-table';
     var thead = document.createElement('thead');
     var htr = document.createElement('tr');
-    [['#', 'c-n'], ['Description', 'c-d'], ['Qty', 'c-c'], ['Weight', 'c-q'], ['Rate', 'c-r'], ['Amount', 'c-a']]
+    [['#', 'c-n'], ['Description', 'c-d'], ['Qty', 'c-q'], ['Unit', 'c-u'], ['Rate', 'c-r'], ['Amount', 'c-a']]
       .forEach(function (c) {
         var th = document.createElement('th');
         th.className = c[1];
@@ -113,8 +113,8 @@ var Invoice = (function () {
       d.appendChild(document.createTextNode(l.name));
       if (l.detail) { d.appendChild(App.h('span', 'd-detail', l.detail)); }
       tr.appendChild(d);
-      tr.appendChild(cell(Fmt.qty(l.count == null ? 1 : l.count), 'c-c'));
-      tr.appendChild(cell(Fmt.qty(l.qty) + ' ' + l.unit, 'c-q'));
+      tr.appendChild(cell(Fmt.qty(l.qty), 'c-q'));
+      tr.appendChild(cell(l.unit, 'c-u'));
       tr.appendChild(cell(Fmt.group(l.rate, 2), 'c-r'));
       tr.appendChild(cell(Fmt.group(l.amount, 2), 'c-a'));
       tbody.appendChild(tr);

@@ -323,7 +323,7 @@ var State = (function () {
     if (existing) { return existing; }
     var it = itemById(itemId);
     if (!it) { return null; }
-    var line = { itemId: itemId, count: 1, qty: 0, rate: it.defaultRate, amount: 0, detail: '' };
+    var line = { itemId: itemId, unit: it.unit, qty: 0, rate: it.defaultRate, amount: 0, detail: '' };
     data.draft.selected.push(line);
     persist();
     return line;
@@ -361,13 +361,12 @@ var State = (function () {
     return l;
   }
 
-  /* the pack count is carried on the invoice but never enters the money:
-     one bag weighing 32 kg is qty 1, measure 32 kg, and the rate is per kg */
-  function setCount(itemId, count) {
+  /* the unit is set per line, so one crate of apples does not have to
+     change what the saved item says */
+  function setUnit(itemId, unit) {
     var l = selectedFor(itemId);
     if (!l) { return null; }
-    l.count = Fmt.round(count, 3);
-    persist();
+    if (Store.UNITS.indexOf(unit) >= 0) { l.unit = unit; persist(); }
     return l;
   }
 
@@ -394,8 +393,7 @@ var State = (function () {
       if (!(s.amount > 0)) { return; }
       out.push({
         name: it.name,
-        unit: it.unit,
-        count: s.count == null ? 1 : Fmt.round(s.count, 3),
+        unit: s.unit || it.unit,
         qty: Fmt.round(s.qty, 3),
         rate: Fmt.round(s.rate, 2),
         amount: Fmt.round(s.amount, 2),
@@ -489,7 +487,7 @@ var State = (function () {
     billedOnAccount: billedOnAccount, outstanding: outstanding, totalOutstanding: totalOutstanding,
     allocation: allocation, addPayment: addPayment, deletePayment: deletePayment,
     selectedFor: selectedFor, isSelected: isSelected, select: select, deselect: deselect,
-    setQty: setQty, setRate: setRate, setAmount: setAmount, setCount: setCount, setDetail: setDetail, setDraft: setDraft,
+    setQty: setQty, setRate: setRate, setAmount: setAmount, setUnit: setUnit, setDetail: setDetail, setDraft: setDraft,
     draftLines: draftLines, draftSubtotal: draftSubtotal, draftTotal: draftTotal,
     nextNumberString: nextNumberString, resetDraft: resetDraft,
     saveInvoice: saveInvoice, deleteInvoice: deleteInvoice,

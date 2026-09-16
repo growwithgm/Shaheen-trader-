@@ -223,6 +223,17 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
 .grid-next { margin-top: 8px; }
 .minif { display: flex; flex-direction: column; gap: 4px; }
 .minif > span { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.minif > select {
+  width: 100%; min-height: 44px; padding: 9px 10px;
+  background: var(--field); border: 1px solid var(--field-line); border-radius: var(--radius);
+  font: inherit; font-size: 16px; font-weight: 600; color: var(--ink);
+  outline: none; appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 15px) calc(50% + 2px), calc(100% - 10px) calc(50% + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.minif > select:focus { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink) inset; }
 .minif > input {
   width: 100%; min-height: 44px; padding: 9px 10px;
   background: var(--field); border: 1px solid var(--field-line); border-radius: var(--radius);
@@ -448,10 +459,11 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
   padding: 1.4mm 1mm; border-top: 1.2pt solid #000; border-bottom: 1.2pt solid #000;
   text-align: left; color: #000;
 }
+.d-table thead th.c-q, .d-table thead th.c-r, .d-table thead th.c-a { text-align: right; }
 .d-table td { font-size: 8pt; padding: 1.5mm 1mm; border-bottom: 0.4pt solid #bdbdbd; vertical-align: top; }
 .d-table .c-n  { width: 6mm;  text-align: left; padding-left: 0; }
-.d-table .c-c  { width: 11mm; text-align: right; }
-.d-table .c-q  { width: 19mm; text-align: right; }
+.d-table .c-q  { width: 14mm; text-align: right; }
+.d-table .c-u  { width: 15mm; text-align: left; padding-left: 2.5mm; }
 .d-table .c-r  { width: 17mm; text-align: right; }
 .d-table .c-a  { width: 23mm; text-align: right; padding-right: 0; }
 .d-detail { display: block; font-size: 6.8pt; color: #5a5a5a; margin-top: 0.5mm; line-height: 1.3; }
