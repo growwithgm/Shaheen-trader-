@@ -42,6 +42,7 @@ var Store = (function () {
       phone: '03086701790',
       email: '',
       address: 'Shaheen Traders, Air Base, Sargodha',
+      signature: 'zafar',
       invoicePrefix: '',
       nextNumber: 81
     };
@@ -70,6 +71,7 @@ var Store = (function () {
       phone: str(rb.phone, d.business.phone),
       email: str(rb.email, d.business.email),
       address: str(rb.address, d.business.address),
+      signature: str(rb.signature, d.business.signature),
       invoicePrefix: typeof rb.invoicePrefix === 'string' ? rb.invoicePrefix : d.business.invoicePrefix,
       nextNumber: Math.max(1, Math.round(n(rb.nextNumber, d.business.nextNumber)))
     };

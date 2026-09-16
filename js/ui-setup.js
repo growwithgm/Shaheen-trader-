@@ -13,6 +13,7 @@ var UISetup = (function () {
     f.address.value = b.address;
     f.ntn.value = b.ntn;
     f.strn.value = b.strn;
+    f.signature.value = b.signature;
     f.prefix.value = b.invoicePrefix;
     f.next.value = String(b.nextNumber);
   }
@@ -26,6 +27,7 @@ var UISetup = (function () {
       address: f.address.value.trim(),
       ntn: f.ntn.value.trim(),
       strn: f.strn.value.trim(),
+      signature: f.signature.value.trim(),
       invoicePrefix: f.prefix.value.trim(),
       nextNumber: isFinite(nextRaw) && nextRaw > 0 ? nextRaw : State.business().nextNumber
     });
@@ -91,6 +93,7 @@ var UISetup = (function () {
     f.address = document.getElementById('suAddress');
     f.ntn = document.getElementById('suNtn');
     f.strn = document.getElementById('suStrn');
+    f.signature = document.getElementById('suSignature');
     f.prefix = document.getElementById('suPrefix');
     f.next = document.getElementById('suNext');
 

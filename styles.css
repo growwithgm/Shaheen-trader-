@@ -464,8 +464,15 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
 .d-tbox span { font-size: 7pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .d-tbox b { font-size: 11pt; font-weight: 800; letter-spacing: -0.01em; }
 
-.d-sign { display: flex; justify-content: flex-end; margin-top: 14mm; }
-.d-signbox { width: 52mm; text-align: center; border-top: 0.8pt solid #000; padding-top: 1.2mm; font-size: 7.5pt; }
+.d-sign { display: flex; justify-content: flex-end; margin-top: 12mm; }
+.d-signbox { width: 52mm; text-align: center; }
+/* the signed name sits on the rule, the way a pen would leave it */
+.d-signname {
+  font-style: italic; font-weight: 400; font-size: 13pt; line-height: 1;
+  height: 9mm; display: flex; align-items: flex-end; justify-content: center;
+}
+.d-signrule { border-top: 0.8pt solid #000; }
+.d-signlbl { padding-top: 1.2mm; font-size: 7pt; letter-spacing: .04em; }
 
 /* ---------------- print ---------------- */
 

@@ -141,9 +141,13 @@ var Invoice = (function () {
 
     docEl.appendChild(foot);
 
-    /* 6 — signature only. Nothing on the left. */
+    /* 6 — signature only. Nothing on the left, no terms, no small print. */
     var sign = App.h('div', 'd-sign');
-    sign.appendChild(App.h('div', 'd-signbox', 'for ' + (b.name || 'Shaheen Traders')));
+    var box = App.h('div', 'd-signbox');
+    box.appendChild(App.h('div', 'd-signname', b.signature || ''));
+    box.appendChild(App.h('div', 'd-signrule'));
+    box.appendChild(App.h('div', 'd-signlbl', 'Authorized Signature'));
+    sign.appendChild(box);
     docEl.appendChild(sign);
   }
 
