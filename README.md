@@ -103,6 +103,18 @@ Two things worth knowing:
   local testing. On desktop browsers, which mostly cannot share files, the PDF
   downloads and a WhatsApp link opens so you can attach it yourself.
 
+## The invoice's colour
+
+The document carries one brand colour, a deep forest green, on the top band,
+the letterhead rule, the table header, the total and the labels. Nothing is
+ever white text on a colour, so a black-and-white printer — or a colour one
+with "background graphics" switched off — still prints every word. The app
+itself stays monochrome; only the document is coloured.
+
+To change the colour, edit the three values on `.doc` in `styles.css`:
+`--acc` (the ink), `--acc-soft` (the wash behind the header and total) and
+`--acc-line` (the hairline between rows).
+
 ## Printing
 
 The invoice view has a **Print / PDF** button. In the print dialog set the paper

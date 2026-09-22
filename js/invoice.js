@@ -43,6 +43,9 @@ var Invoice = (function () {
     numberEl.textContent = inv.number;
     docEl.textContent = '';
 
+    /* a slim band across the top, so the page reads as printed, not copied */
+    docEl.appendChild(App.h('div', 'd-topbar'));
+
     /* 1 — letterhead */
     var head = App.h('div', 'd-head');
 

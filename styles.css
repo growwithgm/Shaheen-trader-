@@ -419,11 +419,20 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
 .iv-fit { transform-origin: top left; }
 
 .doc {
+  /* the invoice carries one brand colour. Nothing is white-on-colour, so a
+     black-and-white printer, or a print with background graphics switched
+     off, still reads exactly the same. */
+  --acc: #14532D;        /* deep forest green */
+  --acc-mid: #2C6B45;
+  --acc-soft: #EDF3EF;   /* the faintest wash, for bands */
+  --acc-line: #A8BFB1;
   width: 148mm;
   min-height: 210mm;
   padding: 10mm;
   background: #ffffff;
   color: #000000;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
   border: 1px solid var(--line-2);
   font-family: var(--sans);
   font-size: 8pt;
@@ -433,34 +442,46 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
 }
 .doc * { box-sizing: border-box; }
 
+.d-topbar {
+  height: 2.2mm; background: var(--acc); margin: 0 0 4mm;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
 .d-head { display: flex; align-items: flex-start; gap: 5mm; }
 .d-logo { width: 22mm; height: auto; flex: 0 0 22mm; }
 .d-id { flex: 1; min-width: 0; }
-.d-name { font-size: 13pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 1mm; }
+.d-name { font-size: 13pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 1mm; color: var(--acc); }
 .d-lines { font-size: 7pt; line-height: 1.42; color: #2b2b2b; }
 .d-lines div { white-space: pre-line; }
 .d-meta { flex: 0 0 auto; text-align: right; }
-.d-inv { font-size: 11pt; font-weight: 700; letter-spacing: .22em; margin: 0 0 1.6mm; }
+.d-inv { font-size: 11pt; font-weight: 700; letter-spacing: .22em; margin: 0 0 1.6mm; color: var(--acc); }
 .d-metablock { flex: 0 0 auto; }
 .d-metarow { display: flex; justify-content: flex-end; gap: 2mm; font-size: 7.5pt; line-height: 1.45; white-space: nowrap; }
 .d-metarow span { font-weight: 500; color: #2b2b2b; }
 .d-metarow b { font-weight: 700; }
 
-.d-rule { height: 1.6pt; background: #000; margin: 3mm 0 0; }
+.d-rule { height: 1.6pt; background: var(--acc); margin: 3mm 0 0; }
 
 .d-billto { padding: 3mm 0 0; }
-.d-lbl { font-size: 6.4pt; font-weight: 700; letter-spacing: .18em; color: #6b6b6b; margin: 0 0 1mm; }
+.d-lbl { font-size: 6.4pt; font-weight: 700; letter-spacing: .18em; color: var(--acc-mid); margin: 0 0 1mm; }
 .d-party { font-size: 9.5pt; font-weight: 700; line-height: 1.2; margin: 0; }
 .d-partysub { font-size: 7pt; color: #2b2b2b; line-height: 1.4; margin: 0.8mm 0 0; white-space: pre-line; max-width: 78mm; }
 
 .d-table { width: 100%; border-collapse: collapse; margin: 4mm 0 0; }
 .d-table thead th {
   font-size: 6.6pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
-  padding: 1.4mm 1mm; border-top: 1.2pt solid #000; border-bottom: 1.2pt solid #000;
-  text-align: left; color: #000;
+  padding: 1.6mm 1mm; border-top: 1.2pt solid var(--acc); border-bottom: 1.2pt solid var(--acc);
+  text-align: left; color: var(--acc);
 }
+/* the wash goes on the row, not the cells — abutting cell fills leave
+   hairline seams when the page is rasterised for WhatsApp */
+.d-table thead tr, .d-table tbody tr:nth-child(even) {
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.d-table thead tr { background: var(--acc-soft); }
 .d-table thead th.c-q, .d-table thead th.c-r, .d-table thead th.c-a { text-align: right; }
-.d-table td { font-size: 8pt; padding: 1.5mm 1mm; border-bottom: 0.4pt solid #bdbdbd; vertical-align: top; }
+.d-table td { font-size: 8pt; padding: 1.5mm 1mm; border-bottom: 0.4pt solid var(--acc-line); vertical-align: top; }
+/* a faint band on every other row, the way a ledger is ruled */
+.d-table tbody tr:nth-child(even) { background: #F7FAF8; }
 .d-table .c-n  { width: 6mm;  text-align: left; padding-left: 0; }
 .d-table .c-q  { width: 14mm; text-align: right; }
 .d-table .c-u  { width: 15mm; text-align: left; padding-left: 2.5mm; }
@@ -475,9 +496,15 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
 .d-trow { display: flex; justify-content: space-between; gap: 4mm; font-size: 8pt; padding: 1.1mm 0; }
 .d-trow span { color: #2b2b2b; }
 .d-trow b { font-weight: 700; }
-.d-tbox { display: flex; justify-content: space-between; gap: 4mm; align-items: baseline; padding: 1.6mm 0; border-top: 1.2pt solid #000; border-bottom: 1.2pt solid #000; margin-top: 1mm; }
-.d-tbox span { font-size: 7pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-.d-tbox b { font-size: 11pt; font-weight: 800; letter-spacing: -0.01em; }
+.d-tbox {
+  display: flex; justify-content: space-between; gap: 4mm; align-items: baseline;
+  padding: 1.8mm 2mm; margin-top: 1mm;
+  border-top: 1.2pt solid var(--acc); border-bottom: 1.2pt solid var(--acc);
+  background: var(--acc-soft);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.d-tbox span { font-size: 7pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--acc); }
+.d-tbox b { font-size: 11pt; font-weight: 800; letter-spacing: -0.01em; color: var(--acc); }
 
 .d-sign { display: flex; justify-content: flex-end; margin-top: 12mm; }
 .d-signbox { width: 52mm; text-align: center; }
@@ -486,8 +513,8 @@ textarea.finput { resize: vertical; line-height: 1.35; padding-top: 4px; }
   font-style: italic; font-weight: 400; font-size: 13pt; line-height: 1;
   height: 9mm; display: flex; align-items: flex-end; justify-content: center;
 }
-.d-signrule { border-top: 0.8pt solid #000; }
-.d-signlbl { padding-top: 1.2mm; font-size: 7pt; letter-spacing: .04em; }
+.d-signrule { border-top: 0.8pt solid var(--acc); }
+.d-signlbl { padding-top: 1.2mm; font-size: 7pt; letter-spacing: .04em; color: var(--acc-mid); }
 
 /* ---------------- print ---------------- */
 
